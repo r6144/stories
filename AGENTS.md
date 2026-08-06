@@ -34,6 +34,12 @@
 6. settings.md 在修订收尾阶段统一更新；chrono.md 通读全文核实完毕后是时间线问题的最高优依据，settings.md 的时间线相关内容须与之保持一致（多余内容去掉）。修订过程中发现正文与设定冲突时，先记录在 TODO.md，不擅自处理。
 7. 操作细节：rae.md 约9700行，用 read 工具按章分次读取（单次约2000行/50KB上限）。每完成一章修订，同步更新 chrono.md、style.md、TODO.md 并清理过时内容。
 
+## 运行环境约定（Windows）
+
+- Windows 默认 codepage 936，Python 输出中文易乱码。运行任何 Python 脚本（含内联 heredoc：`python - <<EOF`）前，一律加 `PYTHONIOENCODING=utf-8` 前缀，或先执行 `chcp 65001`。
+- tools/para_stats.py 内部已 `sys.stdout.reconfigure(encoding='utf-8')`，直接运行亦可。
+- 凡用 python 内联脚本做统计/扫描/检查，必须在 bash 命令中加 `PYTHONIOENCODING=utf-8`，确保输出可读。
+
 ## 防漂移机制（每次修订一章都必须执行）
 
 1. 改某一章前：重读 style.md，并重读基准章（第一~三章）至少一个样段（约200行）；
