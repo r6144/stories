@@ -1,0 +1,5 @@
+{
+    "pendant.diagnostics.enabled": false,
+    "pendant.autoGenerateSessionNames": false,
+    "pendant.showThinking": true
+}
