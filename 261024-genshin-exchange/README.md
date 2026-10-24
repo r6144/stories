@@ -34,7 +34,7 @@
 - [`docs/05-官设考据.md`](docs/05-官设考据.md)
 - [`docs/06-写作规范.md`](docs/06-写作规范.md)
 - [`docs/08-章节写作包/ch01.md`](docs/08-章节写作包/ch01.md)
-- [`docs/09-风格基线.md`](docs/09-风格基线.md)
+- [`docs/09-声音与节奏.md`](docs/09-声音与节奏.md)
 - [`docs/10-进度与决策.md`](docs/10-进度与决策.md)
 - [`AGENTS.md`](AGENTS.md)
 
