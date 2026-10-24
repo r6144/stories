@@ -1,4 +1,4 @@
-param(
+﻿param(
     [string]$Path = (Join-Path $PSScriptRoot '..\正文')
 )
 
@@ -26,3 +26,4 @@ foreach ($f in $files) {
     '{0,-28} {1,8}' -f $f.Name, $count
 }
 '{0,-28} {1,8}' -f '合计', $total
+
