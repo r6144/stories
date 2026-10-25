@@ -1,9 +1,9 @@
-﻿param(
+param(
     [string]$Path = (Join-Path $PSScriptRoot '..\正文')
 )
 
 # 粗略统计中文正文字数：去掉 Markdown 标记、空白、标题行，只数汉字/标点。
-# 用途：交稿前检查每章是否在 8k-16k 之间（目标约 10k）。
+# 可选工具：只用于大致确认章节落在 8k-16k 附近；不是验收指标，不作为改文依据。
 
 if (-not (Test-Path $Path)) {
     Write-Host "没有找到正文目录：$Path"
