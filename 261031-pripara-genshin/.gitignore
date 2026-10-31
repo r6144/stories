@@ -1,0 +1,17 @@
+# 临时文件
+*.tmp
+*.bak
+*.swp
+.DS_Store
+Thumbs.db
+
+# 权限修复报告（本地保留，不进仓库）
+.acl-recovery/
+
+# 考据原文缓存（只保留整理后的笔记与来源）
+research/raw/
+research/cache/
+
+# 编辑器
+.vscode/
+.idea/
