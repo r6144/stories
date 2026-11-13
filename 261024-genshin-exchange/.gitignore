@@ -15,3 +15,6 @@ research/cache/
 # 编辑器
 .vscode/
 .idea/
+
+# 对话审计的临时报告（可随时重跑；基线 baseline.csv 仍入库）
+tools/out/*.audit.md
