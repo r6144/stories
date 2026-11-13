@@ -58,7 +58,7 @@ pwsh -File tools\dialog-verify.ps1 -Chapter XX
 
 1. `git status --short` 确认只改了本章与相关文档。
 2. `git commit -m "[fix] 对话清理：chXX"`。
-3. 在 `docs/10-进度与决策.md` 加一行：章号、主要手法、汉字/段数/对话段/单字段/答句的前后数字。不贴原文。
+3. 在 `docs/10-进度与事实账本.md` 的进度表里把本章「D83 对话清理」改成已完成（覆盖式，不追加行）；数字与手法写进 commit message，不写进 docs。
 4. 更新 `tools/out/baseline.csv`（`pwsh -File tools\dialog-audit.ps1 -WriteBaseline`），让下一章的对比基准是清理后的状态。
 
 ## 参考：ch15 实测（2026-11-13）
@@ -72,4 +72,4 @@ pwsh -File tools\dialog-verify.ps1 -Chapter XX
 | 单字段对白 | 23 | 13 |
 | `嗯了一声` 次数 | 6（拆段后） | 1 |
 
-两次返工都记在 `docs/10`：第一次是“一段换人”拆过头，把“嗯”提成了独立段；第二次是换叙述时一个模板用到底。
+两次返工都改进了上面的步骤：第一次是“一段换人”拆过头，把“嗯”提成了独立段（见第 2 步）；第二次是换叙述时一个模板用到底（见第 3 步）。
