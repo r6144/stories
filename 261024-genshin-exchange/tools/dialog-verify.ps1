@@ -3,7 +3,7 @@
   dialog-verify.ps1 —— 对话清理后的机械校验（D83）
 
   硬失败（exit 1）：引号不配对 / 出现「」/ 连续两个空行 / 相邻重复段
-  警告：汉字变化超过 5% / 一段换人 / 空转句式超配额
+  警告：汉字变化超过 5% / 一段换人 / 空转句式超配额 / 同一应答说法 ≥ 3 次
 
   用法：
     pwsh -File tools\dialog-verify.ps1                # 全书
@@ -61,6 +61,23 @@ function Get-Stats {
     $u = @($spk | Where-Object { $_.Length -gt 0 } | Select-Object -Unique)
     if ($u.Count -ge 2) { $huan++ }
   }
+  # 单字段对白：整段只有一句引号，且引号内只有一个汉字（“嗯。”“是。”），一秒一段的那种
+  $dan = 0
+  foreach ($p in $paras) {
+    $t = $p.Text
+    if (-not $t.StartsWith($QO)) { continue }
+    if (([regex]::Matches($t, $QO)).Count -ne 1) { continue }
+    $i1 = $t.IndexOf($QO); $i2 = $t.IndexOf($QC, $i1 + 1)
+    if ($i2 -lt 0) { continue }
+    $inner = $t.Substring($i1 + 1, $i2 - $i1 - 1)
+    if (($inner -replace '[^\u4e00-\u9fff]', '').Length -le 1) { $dan++ }
+  }
+  # 应答句重复：同一应答说法全篇用了几次（取最大值）
+  $respMax = 0
+  foreach ($ph in @('嗯了一声', '应了一声', '点了下头', '点了点头', '没有反对', '没接话')) {
+    $c = ([regex]::Matches($raw, [regex]::Escape($ph))).Count
+    if ($c -gt $respMax) { $respMax = $c }
+  }
   [pscustomobject]@{
     汉字 = $han
     段 = $paras.Count
@@ -71,6 +88,8 @@ function Get-Stats {
     没说话 = @($paras | Where-Object { $_.Text -match '没有说话|没说话|没有答话|没有回答' -and $_.Text.Length -le 30 -and -not $_.Text.Contains($QO) }).Count
     沉默 = @($paras | Where-Object { $_.Text -match '沉默' -and $_.Text.Length -le 25 -and -not $_.Text.Contains($QO) }).Count
     极短对话 = @($paras | Where-Object { $_.Text.StartsWith($QO) -and $_.Text.Length -le 10 }).Count
+    单字段 = $dan
+    答句 = $respMax
     换人段 = $huan
     开引号 = ([regex]::Matches($raw, $QO)).Count
     闭引号 = ([regex]::Matches($raw, $QC)).Count
@@ -95,6 +114,7 @@ $all = 1..15 | ForEach-Object { if ($_ -lt 10) { "0$_" } else { "$_" } }
 $chs = if ($Chapter -eq 'all') { $all } else { @((($Chapter -replace '[^0-9]', '')).PadLeft(2, '0')) }
 
 $rows = New-Object System.Collections.Generic.List[object]
+$issues = New-Object System.Collections.Generic.List[string]
 $hardFail = $false
 
 foreach ($ch in $chs) {
@@ -117,23 +137,26 @@ foreach ($ch in $chs) {
   if ($b) {
     $bh = [int]$b.汉字
     $pct = if ($bh) { [math]::Round(($s.汉字 - $bh) / $bh * 100, 1) } else { 0 }
-    $hanDelta = "$bh → $($s.汉字)（$pct%）"
+    $hanDelta = if ($pct -gt 0) { "+$pct%" } else { "$pct%" }
     if ($pct -lt -5) { $warns.Add("汉字降幅 $pct% 超过 −5%") }
   }
   if ($s.短看着 -gt 2) { $warns.Add("短看着段 $($s.短看着)（配额 ≤ 2）") }
   if ($s.没说话 -gt 2) { $warns.Add("没说话段 $($s.没说话)（配额 ≤ 2）") }
   if ($s.沉默 -gt 2) { $warns.Add("沉默独立段 $($s.沉默)（配额 ≤ 2）") }
+  if ($s.答句 -ge 3) { $warns.Add("同一应答说法重复 $($s.答句) 次（≤ 2）") }
   if ($s.换人段 -gt 0) { $warns.Add("一段换人 $($s.换人段) 处（目标 0）") }
 
   if ($fails.Count -gt 0) { $hardFail = $true }
 
   $rows.Add([pscustomobject]@{
-    章 = "ch$ch"; 汉字 = $s.汉字; 变化 = $hanDelta; 段 = $s.段; 字每段 = $s.字每段
-    含3引号 = $s.含3引号; 短看着 = $s.短看着; 没说话 = $s.没说话; 换人 = $s.换人段
+    章 = "ch$ch"; 汉字 = $s.汉字; 变化 = $hanDelta; 段 = $s.段
+    短看着 = $s.短看着; 没说话 = $s.没说话; 单字段 = $s.单字段; 答句 = $s.答句; 换人 = $s.换人段
     结果 = if ($fails.Count) { 'FAIL' } elseif ($warns.Count) { 'WARN' } else { 'OK' }
-    问题 = (@($fails) + @($warns)) -join '；'
   })
+  $msg = (@($fails) + @($warns)) -join '；'
+  if ($msg) { $issues.Add("ch${ch}：$msg") }
 }
 
-$rows | Format-Table -AutoSize -Wrap | Out-String -Width 200
+$rows | Format-Table -AutoSize | Out-String -Width 200
+foreach ($line in $issues) { $line }
 if ($hardFail) { exit 1 }
